@@ -1,25 +1,51 @@
 #include <Arduino.h>
+#include <PubSubClient.h>
+#include <WiFi.h>
 #include "tasks/network_task.h"
 #include "state/system_state.h"
 #include "state/state_manager.h"
 #include "network/wifi_manager.h"
-#include "network/websocket_server.h"
+#include "config/credentials.h"
 
 #define ARDUINO_RX 16
 #define ARDUINO_TX 17
+
+static WiFiClient   wifiClient;
+static PubSubClient mqttClient(wifiClient);
+
+static void ensureMQTTConnected()
+{
+    while (!mqttClient.connected())
+    {
+        Serial.print("[MQTT] Connecting...");
+        if (mqttClient.connect("ESP32_edgehome"))
+        {
+            Serial.println("connected");
+        }
+        else
+        {
+            Serial.printf("failed, rc=%d, retrying in 5s\n", mqttClient.state());
+            vTaskDelay(pdMS_TO_TICKS(5000));
+        }
+    }
+}
 
 void NetworkTask(void *pvParameters)
 {
     Serial2.begin(9600, SERIAL_8N1, ARDUINO_RX, ARDUINO_TX);
 
     initWiFi();
-    initWebSocket();
+
+    mqttClient.setServer(MQTT_BROKER, MQTT_PORT);
 
     char buffer[64];
     uint8_t idx = 0;
 
     for (;;)
     {
+        ensureMQTTConnected();
+        mqttClient.loop();
+
         while (Serial2.available())
         {
             char c = Serial2.read();
@@ -28,6 +54,8 @@ void NetworkTask(void *pvParameters)
             {
                 buffer[idx] = '\0';
                 Serial.printf("[UART] Received: %s\n", buffer);
+                mqttClient.publish("home/sensors", buffer);
+                Serial.printf("[MQTT] Published: %s\n", buffer);
                 idx = 0;
             }
             else if (idx < sizeof(buffer) - 1)
