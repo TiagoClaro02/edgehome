@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h2>ESP32 Telemetry</h2>
+<pre id="out"></pre>
+
+<script>
+let ws = new WebSocket("ws://192.168.1.108/ws");
+
+ws.onmessage = (event) => {
+  document.getElementById("out").innerText = event.data;
+};
+</script>
+</body>
+</html>
