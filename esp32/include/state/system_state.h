@@ -3,8 +3,7 @@
 
 typedef struct
 {
-    bool buttonPressed = false;
+    int ldrRaw = 0;
 } SystemState;
 
 extern SystemState g_systemState;
-

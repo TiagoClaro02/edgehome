@@ -1,0 +1,8 @@
+../Core/Src/tasks/system_task.c:17:9:u8g2_hw_i2c_byte	40	static
+../Core/Src/tasks/system_task.c:43:9:u8g2_gpio_and_delay	24	static
+../Core/Src/tasks/system_task.c:58:13:drawHeapBar	48	static
+../Core/Src/tasks/system_task.c:67:13:drawStackBar	48	static
+../Core/Src/tasks/system_task.c:77:13:initScreens	8	static
+../Core/Src/tasks/system_task.c:92:13:drawSystemScreen	96	static
+../Core/Src/tasks/system_task.c:143:13:drawStacksScreen	128	static
+../Core/Src/tasks/system_task.c:191:6:SystemTaskImpl	16	static

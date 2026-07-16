@@ -7,9 +7,6 @@
 #include "network/wifi_manager.h"
 #include "config/credentials.h"
 
-#define ARDUINO_RX 16
-#define ARDUINO_TX 17
-
 static WiFiClient   wifiClient;
 static PubSubClient mqttClient(wifiClient);
 
@@ -32,38 +29,32 @@ static void ensureMQTTConnected()
 
 void NetworkTask(void *pvParameters)
 {
-    Serial2.begin(9600, SERIAL_8N1, ARDUINO_RX, ARDUINO_TX);
-
     initWiFi();
-
+    vTaskDelay(pdMS_TO_TICKS(500));
     mqttClient.setServer(MQTT_BROKER, MQTT_PORT);
 
-    char buffer[64];
-    uint8_t idx = 0;
+    char message[64];
 
     for (;;)
     {
         ensureMQTTConnected();
         mqttClient.loop();
 
-        while (Serial2.available())
+        int ldr = 0;
+        if (xSemaphoreTake(g_stateMutex, pdMS_TO_TICKS(100)) == pdTRUE)
         {
-            char c = Serial2.read();
-
-            if (c == '\n')
-            {
-                buffer[idx] = '\0';
-                Serial.printf("[UART] Received: %s\n", buffer);
-                mqttClient.publish("home/sensors", buffer);
-                Serial.printf("[MQTT] Published: %s\n", buffer);
-                idx = 0;
-            }
-            else if (idx < sizeof(buffer) - 1)
-            {
-                buffer[idx++] = c;
-            }
+            ldr = g_systemState.ldrRaw;
+            xSemaphoreGive(g_stateMutex);
+        }
+        else
+        {
+            Serial.println("[WARNING] Mutex timeout in NetworkTask");
         }
 
-        vTaskDelay(pdMS_TO_TICKS(50));
+        snprintf(message, sizeof(message), "{\"ldr\":%d}", ldr);
+        mqttClient.publish("home/sensors", message);
+        Serial.printf("[MQTT] Published: %s\n", message);
+
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }

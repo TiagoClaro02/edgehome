@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
 #include "state/state_manager.h"
-#include "tasks/input_task.h"
+#include "tasks/serial_task.h"
 #include "tasks/control_task.h"
 #include "tasks/system_task.h"
 #include "tasks/network_task.h"
@@ -16,12 +16,12 @@ void setup() {
   initStateManager();
 
   xTaskCreatePinnedToCore(
-    InputTask,
-    "Input",
-    INPUT_TASK_STACK_SIZE,
+    SerialTask,
+    "Serial",
+    SERIAL_TASK_STACK_SIZE,
     NULL,
     2,
-    &inputTaskHandle,
+    &serialTaskHandle,
     1);
 
   xTaskCreatePinnedToCore(
