@@ -40,10 +40,12 @@ void NetworkTask(void *pvParameters)
         ensureMQTTConnected();
         mqttClient.loop();
 
-        int ldr = 0;
+        int temperature = 0;
+        int pressure = 0;
         if (xSemaphoreTake(g_stateMutex, pdMS_TO_TICKS(100)) == pdTRUE)
         {
-            ldr = g_systemState.ldrRaw;
+            temperature = g_systemState.temperature;
+            pressure = g_systemState.pressure;
             xSemaphoreGive(g_stateMutex);
         }
         else
@@ -51,10 +53,12 @@ void NetworkTask(void *pvParameters)
             Serial.println("[WARNING] Mutex timeout in NetworkTask");
         }
 
-        snprintf(message, sizeof(message), "{\"ldr\":%d}", ldr);
+        snprintf(message, sizeof(message),
+                "{\"temp\":%d,\"pres\":%d}",
+                temperature, pressure);
         mqttClient.publish("home/sensors", message);
         Serial.printf("[MQTT] Published: %s\n", message);
 
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        vTaskDelay(pdMS_TO_TICKS(5000));
     }
 }

@@ -3,12 +3,12 @@
 #include "state/system_state.h"
 #include "state/state_manager.h"
 
-#define ARDUINO_RX 16
-#define ARDUINO_TX 17
+#define STM32_RX 16
+#define STM32_TX 17
 
 void SerialTask(void *pvParameters)
 {
-    Serial2.begin(9600, SERIAL_8N1, ARDUINO_RX, ARDUINO_TX);
+    Serial2.begin(9600, SERIAL_8N1, STM32_RX, STM32_TX);
 
     char buffer[64];
     uint8_t idx = 0;
@@ -24,13 +24,15 @@ void SerialTask(void *pvParameters)
                 buffer[idx] = '\0';
                 idx = 0;
 
-                // parse {"ldr":512}
-                int ldr = 0;
-                if (sscanf(buffer, "{\"ldr\":%d}", &ldr) == 1)
+                int temp = 0;
+                int pres = 0;
+
+                if (sscanf(buffer, "{\"temp\":%d,\"pres\":%d}", &temp, &pres) == 2)
                 {
                     if (xSemaphoreTake(g_stateMutex, pdMS_TO_TICKS(100)) == pdTRUE)
                     {
-                        g_systemState.ldrRaw = ldr;
+                        g_systemState.temperature = temp;
+                        g_systemState.pressure    = pres;
                         xSemaphoreGive(g_stateMutex);
                     }
                     else

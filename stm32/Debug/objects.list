@@ -8,6 +8,7 @@
 "./Core/Src/system_stm32f4xx.o"
 "./Core/Src/state/state_manager.o"
 "./Core/Src/state/system_state.o"
+"./Core/Src/tasks/comms_task.o"
 "./Core/Src/tasks/sensor_actuator_task.o"
 "./Core/Src/tasks/system_task.o"
 "./Core/Startup/startup_stm32f411ceux.o"

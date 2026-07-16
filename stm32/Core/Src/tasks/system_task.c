@@ -92,24 +92,21 @@ static void initScreens(void)
 static void drawSystemScreen(void)
 {
     char line[32];
-    uint8_t fanSpeed = 0;
+    int  temperature = 0;
+    int  pressure    = 0;
+    //uint8_t fanSpeed = 0;
 
     if (osMutexAcquire(stateMutexHandle, 100) == osOK)
     {
-        fanSpeed = g_systemState.fanSpeed;
+        temperature = g_systemState.temperature;
+        pressure    = g_systemState.pressure;
+        //fanSpeed    = g_systemState.fanSpeed;
         osMutexRelease(stateMutexHandle);
     }
 
     uint32_t freeHeap  = xPortGetFreeHeapSize();
     uint32_t minHeap   = xPortGetMinimumEverFreeHeapSize();
     uint32_t totalHeap = configTOTAL_HEAP_SIZE;
-
-    // uptime
-    uint32_t ticks   = osKernelGetTickCount();
-    uint32_t seconds = ticks / osKernelGetTickFreq();
-    uint32_t minutes = (seconds / 60) % 60;
-    uint32_t hours   = (seconds / 3600) % 24;
-    uint32_t days    = seconds / 86400;
 
     u8g2_ClearBuffer(&u8g2_system);
 
@@ -120,22 +117,22 @@ static void drawSystemScreen(void)
     u8g2_SetFont(&u8g2_system, u8g2_font_6x10_tf);
 
     // heap row
-    snprintf(line, sizeof(line), "Heap %lu", freeHeap);
-    u8g2_DrawStr(&u8g2_system, 0, 26, line);
-    drawHeapBar(&u8g2_system, freeHeap, totalHeap, 90, 18, 38, 8);
+        snprintf(line, sizeof(line), "Heap %lu", freeHeap);
+        u8g2_DrawStr(&u8g2_system, 0, 26, line);
+        drawHeapBar(&u8g2_system, freeHeap, totalHeap, 90, 18, 38, 8);
 
-    // min heap row
-    snprintf(line, sizeof(line), "Min  %lu", minHeap);
-    u8g2_DrawStr(&u8g2_system, 0, 38, line);
-    drawHeapBar(&u8g2_system, minHeap, totalHeap, 90, 30, 38, 8);
+        // min heap row
+        snprintf(line, sizeof(line), "Min  %lu", minHeap);
+        u8g2_DrawStr(&u8g2_system, 0, 38, line);
+        drawHeapBar(&u8g2_system, minHeap, totalHeap, 90, 30, 38, 8);
 
-    // fan row
-    snprintf(line, sizeof(line), "Fan  %u%%", fanSpeed);
-    u8g2_DrawStr(&u8g2_system, 0, 50, line);
+        // temperature row
+        snprintf(line, sizeof(line), "Temp %d.%02d C", temperature / 100, temperature % 100);
+        u8g2_DrawStr(&u8g2_system, 0, 50, line);
 
-    // uptime row
-    snprintf(line, sizeof(line), "Up %lud %02luh%02lum", days, hours, minutes);
-    u8g2_DrawStr(&u8g2_system, 0, 62, line);
+        // pressure row
+        snprintf(line, sizeof(line), "Pres %d Pa", pressure);
+        u8g2_DrawStr(&u8g2_system, 0, 62, line);
 
     u8g2_SendBuffer(&u8g2_system);
 }

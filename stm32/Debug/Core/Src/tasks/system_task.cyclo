@@ -4,5 +4,5 @@
 ../Core/Src/tasks/system_task.c:67:13:drawStackBar	2
 ../Core/Src/tasks/system_task.c:77:13:initScreens	1
 ../Core/Src/tasks/system_task.c:92:13:drawSystemScreen	2
-../Core/Src/tasks/system_task.c:143:13:drawStacksScreen	6
-../Core/Src/tasks/system_task.c:191:6:SystemTaskImpl	1
+../Core/Src/tasks/system_task.c:140:13:drawStacksScreen	6
+../Core/Src/tasks/system_task.c:188:6:SystemTaskImpl	1
