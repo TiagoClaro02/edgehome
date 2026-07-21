@@ -6,6 +6,7 @@
 "./Core/Src/syscalls.o"
 "./Core/Src/sysmem.o"
 "./Core/Src/system_stm32f4xx.o"
+"./Core/Src/protocol/crc8.o"
 "./Core/Src/state/state_manager.o"
 "./Core/Src/state/system_state.o"
 "./Core/Src/tasks/comms_task.o"

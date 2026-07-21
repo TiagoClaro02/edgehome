@@ -24,7 +24,7 @@ void ControlTask(void *pvParameters)
         else
         {
             // solid ON when connected
-            digitalWrite(LED_PIN, HIGH);
+            digitalWrite(LED_PIN, LOW);
             vTaskDelay(pdMS_TO_TICKS(200));
         }
     }

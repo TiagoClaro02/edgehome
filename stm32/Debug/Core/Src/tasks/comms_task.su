@@ -1,1 +1,3 @@
-../Core/Src/tasks/comms_task.c:15:6:CommsTaskImpl	96	static
+../Core/Src/tasks/comms_task.c:8:16:buildSensorFrame	32	static
+../Core/Src/tasks/comms_task.c:24:20:waitForAck	16	static
+../Core/Src/tasks/comms_task.c:51:6:CommsTaskImpl	48	static

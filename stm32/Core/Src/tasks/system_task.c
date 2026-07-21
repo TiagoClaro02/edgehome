@@ -1,5 +1,6 @@
 #include "tasks/system_task.h"
 #include "state/state_manager.h"
+#include "protocol/protocol.h"
 #include "main.h"
 #include "u8g2.h"
 #include <stdio.h>
@@ -13,6 +14,19 @@
 
 static u8g2_t u8g2_system;
 static u8g2_t u8g2_stacks;
+
+static const char* ackStatusStr(CommsStatus s)
+{
+    switch (s)
+    {
+        case COMMS_OK:        return "OK";
+        case COMMS_CRC_ERROR: return "CRC_ERR";
+        case COMMS_ERROR:     return "ERROR";
+        case COMMS_TIMEOUT:   return "TIMEOUT";
+        case COMMS_FAILED:    return "FAILED";
+        default:              return "?";
+    }
+}
 
 uint8_t u8g2_hw_i2c_byte(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr)
 {
@@ -92,15 +106,13 @@ static void initScreens(void)
 static void drawSystemScreen(void)
 {
     char line[32];
-    int  temperature = 0;
-    int  pressure    = 0;
-    //uint8_t fanSpeed = 0;
+    CommsStatus lastAck = COMMS_OK;
+    uint8_t retryCount  = 0;
 
     if (osMutexAcquire(stateMutexHandle, 100) == osOK)
     {
-        temperature = g_systemState.temperature;
-        pressure    = g_systemState.pressure;
-        //fanSpeed    = g_systemState.fanSpeed;
+        lastAck    = g_systemState.lastAck;
+        retryCount = g_systemState.retryCount;
         osMutexRelease(stateMutexHandle);
     }
 
@@ -117,24 +129,30 @@ static void drawSystemScreen(void)
     u8g2_SetFont(&u8g2_system, u8g2_font_6x10_tf);
 
     // heap row
-        snprintf(line, sizeof(line), "Heap %lu", freeHeap);
-        u8g2_DrawStr(&u8g2_system, 0, 26, line);
-        drawHeapBar(&u8g2_system, freeHeap, totalHeap, 90, 18, 38, 8);
+	snprintf(line, sizeof(line), "Heap %lu", freeHeap);
+	u8g2_DrawStr(&u8g2_system, 0, 26, line);
+	drawHeapBar(&u8g2_system, freeHeap, totalHeap, 90, 18, 38, 8);
 
-        // min heap row
-        snprintf(line, sizeof(line), "Min  %lu", minHeap);
-        u8g2_DrawStr(&u8g2_system, 0, 38, line);
-        drawHeapBar(&u8g2_system, minHeap, totalHeap, 90, 30, 38, 8);
+	// min heap row
+	snprintf(line, sizeof(line), "Min  %lu", minHeap);
+	u8g2_DrawStr(&u8g2_system, 0, 38, line);
+	drawHeapBar(&u8g2_system, minHeap, totalHeap, 90, 30, 38, 8);
 
-        // temperature row
-        snprintf(line, sizeof(line), "Temp %d.%02d C", temperature / 100, temperature % 100);
-        u8g2_DrawStr(&u8g2_system, 0, 50, line);
+	// ACK row
+	snprintf(line, sizeof(line), "ACK: %s", ackStatusStr(lastAck));
+	u8g2_DrawStr(&u8g2_system, 0, 50, line);
 
-        // pressure row
-        snprintf(line, sizeof(line), "Pres %d Pa", pressure);
-        u8g2_DrawStr(&u8g2_system, 0, 62, line);
+	// ACK retry row
+	if (lastAck == COMMS_FAILED)
+		snprintf(line, sizeof(line), "ERR: MAX RETRY");
+	else if (retryCount > 0 && lastAck != COMMS_OK)
+		snprintf(line, sizeof(line), "Retry %u/%u", retryCount, MAX_RETRIES);
+	else
+		line[0] = '\0';
 
-    u8g2_SendBuffer(&u8g2_system);
+	u8g2_DrawStr(&u8g2_system, 0, 62, line);
+
+	u8g2_SendBuffer(&u8g2_system);
 }
 
 static void drawStacksScreen(void)
@@ -193,6 +211,6 @@ void SystemTaskImpl(void *argument)
     {
         drawSystemScreen();
         drawStacksScreen();
-        osDelay(1000);
+        osDelay(200);
     }
 }

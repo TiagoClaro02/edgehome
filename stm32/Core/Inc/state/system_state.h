@@ -8,10 +8,20 @@
 #pragma once
 #include <stdint.h>
 
+typedef enum {
+    COMMS_OK,
+    COMMS_CRC_ERROR,
+    COMMS_ERROR,
+    COMMS_TIMEOUT,
+    COMMS_FAILED
+} CommsStatus;
+
 typedef struct {
-    int temperature;  // BME280 temperature x100 (e.g. 2350 = 23.50°C)
-    int pressure;     // BME280 pressure in Pa
-    uint8_t fanSpeed; // PWM duty cycle 0-100%
+    int         temperature;
+    int         pressure;
+    uint8_t     fanSpeed;
+    CommsStatus lastAck;
+    uint8_t     retryCount;
 } SystemState;
 
 extern SystemState g_systemState;

@@ -19,6 +19,7 @@ RM := rm -rf
 -include Core/Startup/subdir.mk
 -include Core/Src/tasks/subdir.mk
 -include Core/Src/state/subdir.mk
+-include Core/Src/protocol/subdir.mk
 -include Core/Src/subdir.mk
 -include objects.mk
 

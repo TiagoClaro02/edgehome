@@ -59,6 +59,6 @@ void NetworkTask(void *pvParameters)
         mqttClient.publish("home/sensors", message);
         Serial.printf("[MQTT] Published: %s\n", message);
 
-        vTaskDelay(pdMS_TO_TICKS(5000));
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
