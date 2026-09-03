@@ -8,24 +8,30 @@
 
 void ControlTask(void *pvParameters)
 {
-    pinMode(LED_PIN, OUTPUT);
+    // pinMode(LED_PIN, OUTPUT);
 
-    bool ledState = false;
+    // bool ledState = false;
+
+    // for (;;)
+    // {
+    //     if (WiFi.status() != WL_CONNECTED)
+    //     {
+    //         // fast blink — 100ms on/off
+    //         ledState = !ledState;
+    //         digitalWrite(LED_PIN, ledState);
+    //         vTaskDelay(pdMS_TO_TICKS(100));
+    //     }
+    //     else
+    //     {
+    //         // solid ON when connected
+    //         digitalWrite(LED_PIN, LOW);
+    //         vTaskDelay(pdMS_TO_TICKS(200));
+    //     }
+    // }
 
     for (;;)
     {
-        if (WiFi.status() != WL_CONNECTED)
-        {
-            // fast blink — 100ms on/off
-            ledState = !ledState;
-            digitalWrite(LED_PIN, ledState);
-            vTaskDelay(pdMS_TO_TICKS(100));
-        }
-        else
-        {
-            // solid ON when connected
-            digitalWrite(LED_PIN, LOW);
-            vTaskDelay(pdMS_TO_TICKS(200));
-        }
+        vTaskDelay(pdMS_TO_TICKS(200));
     }
+
 }

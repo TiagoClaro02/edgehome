@@ -40,7 +40,7 @@ void SerialTask(void *pvParameters)
         while (Serial2.available())
         {
             uint8_t c = Serial2.read();
-            Serial.printf("[UART] byte: 0x%02X state:%d\n", c, state);
+            //Serial.printf("[UART] byte: 0x%02X state:%d\n", c, state);
             
             switch (state)
             {

@@ -7,6 +7,8 @@
 #include "network/wifi_manager.h"
 #include "config/credentials.h"
 
+#define LED_PIN 2
+
 static WiFiClient   wifiClient;
 static PubSubClient mqttClient(wifiClient);
 
@@ -33,6 +35,9 @@ void NetworkTask(void *pvParameters)
     vTaskDelay(pdMS_TO_TICKS(500));
     mqttClient.setServer(MQTT_BROKER, MQTT_PORT);
 
+    pinMode(LED_PIN, OUTPUT);
+    digitalWrite(LED_PIN, LOW);
+
     char message[64];
 
     for (;;)
@@ -56,8 +61,10 @@ void NetworkTask(void *pvParameters)
         snprintf(message, sizeof(message),
                 "{\"temp\":%d,\"pres\":%d}",
                 temperature, pressure);
+        digitalWrite(LED_PIN, HIGH);
         mqttClient.publish("home/sensors", message);
         Serial.printf("[MQTT] Published: %s\n", message);
+        digitalWrite(LED_PIN, LOW);
 
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
