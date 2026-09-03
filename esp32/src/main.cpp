@@ -5,6 +5,7 @@
 #include "tasks/control_task.h"
 #include "tasks/system_task.h"
 #include "tasks/network_task.h"
+#include "tasks/ota_task.h"
 #include "state/task_handles.h"
 #include "config/config.h"
 
@@ -20,7 +21,7 @@ void setup() {
     "Serial",
     SERIAL_TASK_STACK_SIZE,
     NULL,
-    2,
+    3,
     &serialTaskHandle,
     1);
 
@@ -29,7 +30,7 @@ void setup() {
     "Control",
     CONTROL_TASK_STACK_SIZE,
     NULL,
-    1,
+    2,
     &controlTaskHandle,
     1);
 
@@ -38,7 +39,7 @@ xTaskCreatePinnedToCore(
     "Network",
     NETWORK_TASK_STACK_SIZE,
     NULL,
-    1,
+    2,
     &networkTaskHandle,
     0);
 
@@ -47,9 +48,19 @@ xTaskCreatePinnedToCore(
     "System",
     SYSTEM_TASK_STACK_SIZE,
     NULL,
-    1,
+    2,
     &systemTaskHandle,
     1);
+
+xTaskCreatePinnedToCore(
+    otaTask,
+    "OTATask",
+    8192,
+    NULL,
+    1,
+    &otaTaskHandle,
+    0
+);
 }
 
 void loop() {
